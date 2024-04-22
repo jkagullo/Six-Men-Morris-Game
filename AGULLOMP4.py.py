@@ -296,9 +296,6 @@ class Game:
             print("Player wins!")
         elif winner == 2:
             print("AI wins!")
-
-    # ====== AI MINIMAX ALPHA BETA PRUNING ======
-
     def evaluate_state(self):
         player_pieces = sum(p == 1 for p in self.board_state)
         ai_pieces = sum(p == 2 for p in self.board_state)
@@ -538,7 +535,6 @@ def main():
             pygame.draw.rect(window, button_color, button_rect)
             window.blit(button_text,
                         (button_rect.x + padding, button_rect.y + padding))
-
 
         else:
             renderer.draw_game_board(game)
