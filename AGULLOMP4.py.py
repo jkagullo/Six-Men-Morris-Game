@@ -19,57 +19,6 @@ AI_COLOR = (255, 0, 0)
 FONT_SIZE = 36
 background_image = pygame.image.load("background.png")
 
-
-def handle_exit_button(pos):
-    exit_button_rect = pygame.Rect(WINDOW_WIDTH // 2 - 50, WINDOW_HEIGHT // 2 + 60, 100, 50)
-    if exit_button_rect.collidepoint(pos):
-        pygame.quit()
-        sys.exit()
-
-
-def get_adjacent_points(point):
-    adjacency_list = [
-        [1, 6],
-        [0, 2, 4],
-        [1, 9],
-        [4, 7],
-        [1, 3, 5],
-        [4, 8],
-        [0, 7, 13],
-        [3, 6, 10],
-        [5, 9, 12],
-        [2, 8, 15],
-        [7, 11],
-        [10, 12, 14],
-        [8, 11],
-        [6, 14],
-        [11, 13, 15],
-        [9, 14]
-    ]
-    return adjacency_list[point]
-
-
-def get_clicked_point(x, y):
-    points = [
-        (MARGIN, MARGIN), (WINDOW_WIDTH // 2, MARGIN), (WINDOW_WIDTH - MARGIN, MARGIN),
-        (INNER_MARGIN, INNER_MARGIN), (WINDOW_WIDTH // 2, INNER_MARGIN),
-        (WINDOW_WIDTH - INNER_MARGIN, INNER_MARGIN),
-        (MARGIN, WINDOW_HEIGHT // 2), (INNER_MARGIN, WINDOW_HEIGHT // 2),
-        (WINDOW_WIDTH - INNER_MARGIN, WINDOW_HEIGHT // 2),
-        (WINDOW_WIDTH - MARGIN, WINDOW_HEIGHT // 2),
-        (INNER_MARGIN, WINDOW_HEIGHT - INNER_MARGIN), (WINDOW_WIDTH // 2, WINDOW_HEIGHT - INNER_MARGIN),
-        (WINDOW_WIDTH - INNER_MARGIN, WINDOW_HEIGHT - INNER_MARGIN),
-        (MARGIN, WINDOW_HEIGHT - MARGIN), (WINDOW_WIDTH // 2, WINDOW_HEIGHT - MARGIN),
-        (WINDOW_WIDTH - MARGIN, WINDOW_HEIGHT - MARGIN)
-    ]
-
-    for i, point in enumerate(points):
-        if (x - point[0]) ** 2 + (y - point[1]) ** 2 <= POINT_RADIUS ** 2:
-            return i
-
-    return None
-
-
 class Game:
     def __init__(self):
         self.board_state = [0] * 16
@@ -87,6 +36,12 @@ class Game:
             self.__init__()
             return True
         return False
+
+    def handle_exit_button(self, pos):
+        exit_button_rect = pygame.Rect(WINDOW_WIDTH // 2 - 50, WINDOW_HEIGHT // 2 + 60, 100, 50)
+        if exit_button_rect.collidepoint(pos):
+            pygame.quit()
+            sys.exit()
 
     def check_for_win(self):
         if self.player_pieces_left == 0 and self.ai_pieces_left == 0:
@@ -112,14 +67,37 @@ class Game:
         if self.player_pieces_left > 0 and self.ai_pieces_left > 0:
             return True
 
+
         if (player == 1 and sum(p == 1 for p in self.board_state) == 3) or \
                 (player == 2 and sum(p == 2 for p in self.board_state) == 3):
             return True
 
-        if self.selected_piece is not None and point in get_adjacent_points(self.selected_piece):
+        if self.selected_piece is not None and point in self.get_adjacent_points(self.selected_piece):
             return True
 
         return False
+
+    def get_adjacent_points(self, point):
+        adjacency_list = [
+            [1, 6],
+            [0, 2, 4],
+            [1, 9],
+            [4, 7],
+            [1, 3, 5],
+            [4, 8],
+            [0, 7, 13],
+            [3, 6, 10],
+            [5, 9, 12],
+            [2, 8, 15],
+            [7, 11],
+            [10, 12, 14],
+            [8, 11],
+            [6, 14],
+            [11, 13, 15],
+            [9, 14]
+        ]
+        return adjacency_list[point]
+
 
     def check_for_mill(self, point, player):
         mill_combinations = [
@@ -165,8 +143,8 @@ class Game:
                 if self.is_part_of_mill(point_to_remove, opponent):
                     if any(not self.is_part_of_mill(i, opponent) for i in opponent_pieces):
                         if self.player_pieces_left == 0 and self.ai_pieces_left == 0:
-                            print("Cannot remove a piece that is part of a mill. There are other pieces not part of a "
-                                  "mill.")
+                            print(
+                                "Cannot remove a piece that is part of a mill. There are other pieces not part of a mill.")
                             return False
                     self.board_state[point_to_remove] = 0
                     if player == 1:
@@ -190,7 +168,7 @@ class Game:
         return False
 
     def handle_player_move(self, x, y):
-        point = get_clicked_point(x, y)
+        point = self.get_clicked_point(x, y)
         if point is not None:
             if self.remove_mode:
                 if self.board_state[point] == 2:
@@ -265,7 +243,7 @@ class Game:
                 best_score = float('-inf')
                 best_move = None
                 for selected_piece in ai_pieces:
-                    adjacent_points = get_adjacent_points(selected_piece)
+                    adjacent_points = self.get_adjacent_points(selected_piece)
                     valid_moves = [point for point in adjacent_points if self.board_state[point] == 0]
                     for point in valid_moves:
                         original_position = selected_piece
@@ -296,6 +274,29 @@ class Game:
             print("Player wins!")
         elif winner == 2:
             print("AI wins!")
+
+    def get_clicked_point(self, x, y):
+        points = [
+            (MARGIN, MARGIN), (WINDOW_WIDTH // 2, MARGIN), (WINDOW_WIDTH - MARGIN, MARGIN),
+            (INNER_MARGIN, INNER_MARGIN), (WINDOW_WIDTH // 2, INNER_MARGIN),
+            (WINDOW_WIDTH - INNER_MARGIN, INNER_MARGIN),
+            (MARGIN, WINDOW_HEIGHT // 2), (INNER_MARGIN, WINDOW_HEIGHT // 2),
+            (WINDOW_WIDTH - INNER_MARGIN, WINDOW_HEIGHT // 2),
+            (WINDOW_WIDTH - MARGIN, WINDOW_HEIGHT // 2),
+            (INNER_MARGIN, WINDOW_HEIGHT - INNER_MARGIN), (WINDOW_WIDTH // 2, WINDOW_HEIGHT - INNER_MARGIN),
+            (WINDOW_WIDTH - INNER_MARGIN, WINDOW_HEIGHT - INNER_MARGIN),
+            (MARGIN, WINDOW_HEIGHT - MARGIN), (WINDOW_WIDTH // 2, WINDOW_HEIGHT - MARGIN),
+            (WINDOW_WIDTH - MARGIN, WINDOW_HEIGHT - MARGIN)
+        ]
+
+        for i, point in enumerate(points):
+            if (x - point[0]) ** 2 + (y - point[1]) ** 2 <= POINT_RADIUS ** 2:
+                return i
+
+        return None
+
+    # ====== AI MINIMAX ALPHA BETA PRUNING ======
+
     def evaluate_state(self):
         player_pieces = sum(p == 1 for p in self.board_state)
         ai_pieces = sum(p == 2 for p in self.board_state)
@@ -316,7 +317,7 @@ class Game:
             return [i for i, x in enumerate(self.board_state) if x == 0]
         else:
             player_pieces = [i for i, x in enumerate(self.board_state) if x == player]
-            return [i for piece in player_pieces for i in get_adjacent_points(piece) if self.board_state[i] == 0]
+            return [i for piece in player_pieces for i in self.get_adjacent_points(piece) if self.board_state[i] == 0]
 
     def minimax(self, depth, alpha, beta, maximizing_player):
         if depth == 0 or self.check_for_win():
@@ -361,7 +362,6 @@ class Game:
 
     def evaluate(self):
         return self.evaluate_state()
-
 
 class Renderer:
     def __init__(self, window):
@@ -420,7 +420,7 @@ class Renderer:
 
         for i in range(game.player_pieces_left):
             piece_x = WINDOW_WIDTH // 2 - (
-                    game.player_pieces_left - 1) * spacing // 2 + i * spacing
+                        game.player_pieces_left - 1) * spacing // 2 + i * spacing
             piece_y = player_text.get_height() + 40
             pygame.draw.circle(self.window, PLAYER_COLOR, (piece_x, piece_y), piece_radius)
 
@@ -430,7 +430,7 @@ class Renderer:
 
         for i in range(game.ai_pieces_left):
             piece_x = WINDOW_WIDTH // 2 - (
-                    game.ai_pieces_left - 1) * spacing // 2 + i * spacing
+                        game.ai_pieces_left - 1) * spacing // 2 + i * spacing
             piece_y = WINDOW_HEIGHT - computer_text.get_height() - 40
             pygame.draw.circle(self.window, (0, 255, 0), (piece_x, piece_y), piece_radius)
 
@@ -440,27 +440,21 @@ class Renderer:
         else:
             turn_text = self.font.render("Computer's turn", True, (255, 255, 255))
         self.window.blit(turn_text, (
-            WINDOW_WIDTH // 2 - turn_text.get_width() // 2, WINDOW_HEIGHT // 2 - turn_text.get_height() // 2))
+        WINDOW_WIDTH // 2 - turn_text.get_width() // 2, WINDOW_HEIGHT // 2 - turn_text.get_height() // 2))
 
     def draw_popup(self, winner):
-        pygame.draw.rect(self.window, (200, 200, 200),
-                         pygame.Rect(WINDOW_WIDTH // 4, WINDOW_HEIGHT // 4, WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2))
+        pygame.draw.rect(self.window, (200, 200, 200), pygame.Rect(WINDOW_WIDTH // 4, WINDOW_HEIGHT // 4, WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2))
 
         winner_text = self.font.render(f"{winner} wins!", True, (0, 0, 0))
-        self.window.blit(winner_text, (
-            WINDOW_WIDTH // 2 - winner_text.get_width() // 2, WINDOW_HEIGHT // 2 - winner_text.get_height() // 2 - 30))
+        self.window.blit(winner_text, (WINDOW_WIDTH // 2 - winner_text.get_width() // 2, WINDOW_HEIGHT // 2 - winner_text.get_height() // 2 - 30))
 
-        replay_button_rect = pygame.draw.rect(self.window, (0, 200, 0),
-                                              pygame.Rect(WINDOW_WIDTH // 2 - 50, WINDOW_HEIGHT // 2, 100, 50))
+        replay_button_rect = pygame.draw.rect(self.window, (0, 200, 0), pygame.Rect(WINDOW_WIDTH // 2 - 50, WINDOW_HEIGHT // 2, 100, 50))
         replay_button_text = self.font.render("Play Again", True, (0, 0, 0))
-        self.window.blit(replay_button_text, (WINDOW_WIDTH // 2 - replay_button_text.get_width() // 2,
-                                              WINDOW_HEIGHT // 2 + replay_button_text.get_height() // 2))
+        self.window.blit(replay_button_text, (WINDOW_WIDTH // 2 - replay_button_text.get_width() // 2, WINDOW_HEIGHT // 2 + replay_button_text.get_height() // 2))
 
-        exit_button_rect = pygame.draw.rect(self.window, (200, 0, 0),
-                                            pygame.Rect(WINDOW_WIDTH // 2 - 50, WINDOW_HEIGHT // 2 + 60, 100, 50))
+        exit_button_rect = pygame.draw.rect(self.window, (200, 0, 0), pygame.Rect(WINDOW_WIDTH // 2 - 50, WINDOW_HEIGHT // 2 + 60, 100, 50))
         exit_button_text = self.font.render("Exit", True, (0, 0, 0))
-        self.window.blit(exit_button_text, (WINDOW_WIDTH // 2 - exit_button_text.get_width() // 2,
-                                            WINDOW_HEIGHT // 2 + 60 + exit_button_text.get_height() // 2))
+        self.window.blit(exit_button_text, (WINDOW_WIDTH // 2 - exit_button_text.get_width() // 2, WINDOW_HEIGHT // 2 + 60 + exit_button_text.get_height() // 2))
 
     def draw_game_board(self, game):
         self.window.blit(background_image, (0, 0))
@@ -512,7 +506,7 @@ def main():
                                 pos = pygame.mouse.get_pos()
                                 if game.handle_replay_button(pos):
                                     break
-                                handle_exit_button(pos)
+                                game.handle_exit_button(pos)
 
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -536,11 +530,11 @@ def main():
             window.blit(button_text,
                         (button_rect.x + padding, button_rect.y + padding))
 
+
         else:
             renderer.draw_game_board(game)
 
         pygame.display.flip()
-
 
 if __name__ == "__main__":
     main()
