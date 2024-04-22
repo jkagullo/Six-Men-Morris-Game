@@ -17,7 +17,7 @@ POINT_COLOR = (255, 255, 255)
 PLAYER_COLOR = (0, 0, 255)
 AI_COLOR = (255, 0, 0)
 FONT_SIZE = 36
-background_image = pygame.image.load("background.png")
+background_image = pygame.image.load("background.png") #load image here
 
 class Game:
     def __init__(self):
